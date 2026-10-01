@@ -24,6 +24,12 @@ Admin access at `/admin` uses Sites sign-in and a server-enforced email allowlis
 
 Catalog and events are public projections; supporter names, emails, and notes are restricted to the admin API. Optimistic revision checks prevent stale dashboard saves and concurrent requests from overwriting each other. Uploads are restricted to raster images under 5 MB.
 
+## Listing galleries
+
+Each listing supports up to 60 uploaded photos, with captions, cover ordering, and optional links to variants. Existing single-photo listings remain compatible. Homepage cards show a swipeable cover and compact thumbnail strip; supporters can expand the gallery or browse all photos inside the request form. Linked photos and named design selection stay synchronized, and out-of-stock designs cannot be requested.
+
+UNHCR impact copy is adapted from the owner-supplied Runner One Pager. Dollar examples describe potential support, not guaranteed gift allocations.
+
 ## Configuration and launch
 
 The configured Formspree endpoint sends notifications with `[LONDON FUNDRAISER]` in the subject. Verify delivery with a real request before launch. Its free plan has submission limits. Delivery failure does not remove the saved request.
@@ -36,5 +42,6 @@ Sites provisions storage through `.openai/hosting.json` and applies schema migra
 
 Type check: `npx tsc --noEmit`.
 Build: `npm run build`.
+Flow checks: `node --experimental-vm-modules scripts/verify-flows.mjs`.
 
 Test donation requests, notification delivery, inventory confirmation/cancellation, and owner-only access before public sharing. Product photographs and starting quantities remain owner-supplied.

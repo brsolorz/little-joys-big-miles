@@ -21,3 +21,11 @@ current.items[0].variants[0].quantity=0;r=await req.POST(request({...base,id:cry
 r=await dashboard.GET();assert.equal(r.status,403,'Anonymous users cannot read supporter details');
 admin=true;let oldRevision=revision;revision++;r=await dashboard.POST(new Request('https://test.local/api/admin',{method:'POST',headers:{origin:'https://test.local','Content-Type':'application/json'},body:JSON.stringify({state:current,revision:oldRevision})}));assert.equal(r.status,409,'Stale saves cannot overwrite newer state');
 console.log('Passed: star pricing, stock validation, idempotency, email failure persistence, origin protection, admin privacy, and stale-save protection. No real emails sent.');
+
+let imageState=structuredClone(current);imageState.items[0].images=[{id:'a',url:'/api/images/test.png',alt:'Blue stars',variantId:'stars'}];
+r=await dashboard.POST(new Request('https://test.local/api/admin',{method:'POST',headers:{origin:'https://test.local','Content-Type':'application/json'},body:JSON.stringify({state:imageState,revision})}));assert.equal(r.status,200,'Valid linked galleries save');
+imageState=structuredClone(current);imageState.items[0].images[0].url='https://untrusted.example/image.svg';
+r=await dashboard.POST(new Request('https://test.local/api/admin',{method:'POST',headers:{origin:'https://test.local','Content-Type':'application/json'},body:JSON.stringify({state:imageState,revision})}));assert.equal(r.status,400,'Gallery URLs must use owned image uploads');
+imageState=structuredClone(current);imageState.items[0].images[0].variantId='missing';
+r=await dashboard.POST(new Request('https://test.local/api/admin',{method:'POST',headers:{origin:'https://test.local','Content-Type':'application/json'},body:JSON.stringify({state:imageState,revision})}));assert.equal(r.status,400,'Photos cannot link to nonexistent variants');
+console.log('Passed: linked gallery persistence, upload URL validation, and variant-link validation.');

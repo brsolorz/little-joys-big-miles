@@ -1,5 +1,6 @@
 export type Variant={id:string;name:string;shape:string;color:string;quantity:number};
-export type Item={id:string;name:string;description:string;kind:"item"|"raffle"|"soon";price:number;bundle:number;largePrice:number;largeBundle:number;published:boolean;image:string;variants:Variant[];ends:string};
+export type ListingPhoto={id:string;url:string;alt:string;variantId?:string};
+export type Item={id:string;name:string;description:string;kind:"item"|"raffle"|"soon";price:number;bundle:number;largePrice:number;largeBundle:number;published:boolean;image:string;images?:ListingPhoto[];variants:Variant[];ends:string};
 export type Entry={id:string;name:string;email:string;itemId:string;itemName:string;variantId:string;variantName:string;units:number;amount:number;pickup:string;note:string;status:string;created:string;emailSent:boolean};
 export type Event={id:string;title:string;date:string;place:string;description:string;url:string;published:boolean};
 export type State={items:Item[];events:Event[];requests:Entry[]};
@@ -11,3 +12,5 @@ export const initial:State={items:[
 {id:"bread",name:"Slow dough. Big heart.",description:"Homemade sourdough is on the horizon. Fresh loaves, baked with love.",kind:"soon",price:0,bundle:1,largePrice:0,largeBundle:0,published:true,image:"",variants:[],ends:""}
 ],events:[],requests:[]};
 export const fundraiser="https://unrefugeesd-londonmarathon2027.funraise.org/fundraiser/brianna-solorzano";
+
+export function listingPhotos(item:Item):ListingPhoto[]{return item.images?.length?item.images:item.image?[{id:"legacy-cover",url:item.image,alt:item.name}]:[];}
