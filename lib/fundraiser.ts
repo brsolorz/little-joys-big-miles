@@ -1,7 +1,8 @@
 export type Variant={id:string;name:string;shape:string;color:string;quantity:number};
 export type ListingPhoto={id:string;url:string;alt:string;variantId?:string};
 export type Item={id:string;name:string;description:string;kind:"item"|"raffle"|"soon";price:number;bundle:number;largePrice:number;largeBundle:number;published:boolean;image:string;images?:ListingPhoto[];variants:Variant[];ends:string};
-export type Entry={id:string;name:string;email:string;itemId:string;itemName:string;variantId:string;variantName:string;units:number;amount:number;pickup:string;note:string;status:string;created:string;emailSent:boolean};
+export type RequestLine={variantId:string;variantName:string;units:number};
+export type Entry={lines?:RequestLine[];id:string;name:string;email:string;itemId:string;itemName:string;variantId:string;variantName:string;units:number;amount:number;pickup:string;note:string;status:string;created:string;emailSent:boolean};
 export type Event={id:string;title:string;date:string;place:string;description:string;url:string;published:boolean};
 export type State={items:Item[];events:Event[];requests:Entry[]};
 export const initial:State={items:[
