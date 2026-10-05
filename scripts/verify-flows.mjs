@@ -9,6 +9,7 @@ const modules={
 };
 const ctx=vm.createContext({Response,Request,console,crypto,Date,fetch:async()=>new Response('{}',{status:500}),structuredClone});
 async function route(path){const code=ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;const mod=new vm.SourceTextModule(code,{context:ctx});await mod.link(async name=>{const e=modules[name];if(!e)throw Error(name);const m=new vm.SyntheticModule(Object.keys(e),function(){for(const [k,v]of Object.entries(e))this.setExport(k,v)},{context:ctx});return m});await mod.evaluate();return mod.namespace;}
+modules['./fundraiser']=await route('lib/fundraiser.ts');
 modules['@/lib/request-pricing']=await route('lib/request-pricing.ts');
 const req=await route('app/api/requests/route.ts'), dashboard=await route('app/api/admin/route.ts');
 const base={id:crypto.randomUUID(),itemId:'clips',variantId:'stars',units:8,pack:'large',name:'Test Supporter',email:'test@example.com',pickup:'hella',note:'Test only',website:''};
@@ -38,3 +39,9 @@ r=await req.POST(request({...base,id:crypto.randomUUID(),choices:[{variantId:'st
 current.items[0].id='stickers';current.items[0].price=7;current.items[0].bundle=1;current.items[0].largePrice=0;
 r=await req.POST(request({...base,id:crypto.randomUUID(),itemId:'stickers',choices:[{variantId:'stars',units:2},{variantId:'pink',units:3}]}));assert.equal(r.status,200);assert.equal(current.requests[0].amount,35);
 console.log('Passed: mixed-choice bundle savings, invalid totals, duplicate choices, and multiple sticker quantities.');
+
+current.items=[{...current.items[0],id:'raffle',kind:'raffle',price:10,ends:new Date(Date.now()+86400000).toISOString(),variants:[]}];
+r=await req.POST(request({...base,id:crypto.randomUUID(),itemId:'raffle',local:true,choices:[{variantId:'raffle-entry',units:50}]}));assert.equal(r.status,200);assert.equal(current.requests[0].amount,500);assert.equal(current.requests[0].kind,'raffle');assert.equal(current.items[0].variants.length,0);
+r=await req.POST(request({...base,id:crypto.randomUUID(),itemId:'raffle',local:false,choices:[{variantId:'raffle-entry',units:2}]}));assert.equal(r.status,400);
+current.items[0].ends=new Date(Date.now()-1000).toISOString();r=await req.POST(request({...base,id:crypto.randomUUID(),itemId:'raffle',local:true,choices:[{variantId:'raffle-entry',units:2}]}));assert.equal(r.status,400);
+console.log('Passed: raffles without stock or variants, multiple entries above 24, exact payment totals, local eligibility, and closing dates.');

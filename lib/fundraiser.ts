@@ -2,7 +2,7 @@ export type Variant={id:string;name:string;shape:string;color:string;quantity:nu
 export type ListingPhoto={id:string;url:string;alt:string;variantId?:string};
 export type Item={id:string;name:string;description:string;kind:"item"|"raffle"|"soon";price:number;bundle:number;largePrice:number;largeBundle:number;published:boolean;image:string;images?:ListingPhoto[];variants:Variant[];ends:string};
 export type RequestLine={variantId:string;variantName:string;units:number};
-export type Entry={lines?:RequestLine[];id:string;name:string;email:string;itemId:string;itemName:string;variantId:string;variantName:string;units:number;amount:number;pickup:string;note:string;status:string;created:string;emailSent:boolean};
+export type Entry={kind?:"item"|"raffle";paymentReceivedAt?:string;confirmationSentAt?:string;lines?:RequestLine[];id:string;name:string;email:string;itemId:string;itemName:string;variantId:string;variantName:string;units:number;amount:number;pickup:string;note:string;status:string;created:string;emailSent:boolean};
 export type Event={id:string;title:string;date:string;place:string;description:string;url:string;published:boolean};
 export type State={items:Item[];events:Event[];requests:Entry[]};
 export const initial:State={items:[
@@ -15,3 +15,6 @@ export const initial:State={items:[
 export const fundraiser="https://unrefugeesd-londonmarathon2027.funraise.org/fundraiser/brianna-solorzano";
 
 export function listingPhotos(item:Item):ListingPhoto[]{return item.images?.length?item.images:item.image?[{id:"legacy-cover",url:item.image,alt:item.name}]:[];}
+
+export function requestable(item:Item){return item.kind==='raffle'?!!item.ends&&Date.parse(item.ends)>Date.now():item.kind!=='soon'&&item.variants.some(v=>v.quantity>0);}
+export function raffleChoice(item:Item){return {id:'raffle-entry',name:'Raffle entry',shape:'',color:'#a9b7ff',quantity:0};}
