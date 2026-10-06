@@ -1,0 +1,8 @@
+import type {Event} from './fundraiser';
+export function eventLocation(event:Event){return [event.place,event.address].filter(Boolean).join(', ')}
+export function eventEnd(event:Event){return event.endDate||new Date(Date.parse(event.date)+3600000).toISOString()}
+const stamp=(date:string)=>new Date(date).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+export function googleCalendarURL(event:Event){const query=new URLSearchParams({action:'TEMPLATE',text:event.title,dates:stamp(event.date)+'/'+stamp(eventEnd(event)),ctz:'America/Los_Angeles',location:eventLocation(event),details:[event.description,event.url].filter(Boolean).join('\n\n')});return 'https://calendar.google.com/calendar/render?'+query;}
+function escape(value:string){return value.replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,')}
+function fold(line:string){let bytes=0,current='',result='';for(const c of line){const n=new TextEncoder().encode(c).length;if(bytes+n>75){result+=current+'\r\n';current=' ';bytes=1}current+=c;bytes+=n}return result+current;}
+export function eventICS(event:Event){return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Little Joys Big Miles//Fundraiser Events//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+escape(event.id)+'@little-joys-big-miles','DTSTAMP:'+stamp(new Date().toISOString()),'DTSTART:'+stamp(event.date),'DTEND:'+stamp(eventEnd(event)),'SUMMARY:'+escape(event.title),'LOCATION:'+escape(eventLocation(event)),'DESCRIPTION:'+escape([event.description,event.url].filter(Boolean).join('\n\n')),...(event.url?['URL:'+event.url]:[]),'END:VEVENT','END:VCALENDAR'].map(fold).join('\r\n')+'\r\n'}

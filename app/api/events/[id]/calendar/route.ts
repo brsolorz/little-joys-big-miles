@@ -1,0 +1,3 @@
+import {readState} from '@/lib/store';
+import {eventICS} from '@/lib/event-calendar';
+export async function GET(r:Request){try{const id=decodeURIComponent(new URL(r.url).pathname.split('/')[3]);const {state}=await readState();const event=state.events.find(e=>e.id===id&&e.published);if(!event)return new Response('Event not found',{status:404});return new Response(eventICS(event),{headers:{'Content-Type':'text/calendar; charset=utf-8','Content-Disposition':'attachment; filename="little-joys-event.ics"','Cache-Control':'no-store'}})}catch{return new Response('Could not load event',{status:503})}}
